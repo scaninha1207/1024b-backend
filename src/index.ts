@@ -59,3 +59,33 @@ const f =  (variavel:number):number=>10
 const f3 = f(10)
 
 console.log(`O valor de x é ${f3}`)
+
+
+//Terminem essa função para retornar a some de todos os elementeos de um vetor
+//somaVetor([1,2,3]) => 6
+//somaVetor([1,2,3,4]) => 10
+// function somaVetor(vetor:number[]){
+//     let soma = 0
+//     for (let i = 0; i < vetor.length; i++) {
+//         const element = vetor[i];
+//         soma = soma + element!
+//     }
+// }
+// console.log(` O valor da soma do vetor é ${somaVetor([1,2,3,4])}`)
+//-some as posições de um vetor que são pares
+function somaVetorPar(vetor:number[]){
+    let soma = 0
+    for (let i = 0; i < vetor.length; i++) {
+        const element = vetor[i];
+      
+        if (i%2===0) {
+            return   soma = soma + vetor[i]!;
+            
+        }
+    }
+
+}
+console.log(` O valor da soma do vetor é ${somaVetorPar([1,2,3,4])}`)
+
+//Faça uma função qeu receba 2 vetores e faça a operação de merge entre eles 
+//Ex; mergeVetor([1,2,3],[4,5,6] => [1,2,3,4,5,6])
