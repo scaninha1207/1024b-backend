@@ -54,12 +54,12 @@ outraletra = "Ana"
 
 
 //Funções em JavaScript/typrscript
-function nomeFuncao(variavel:number):number{
+const f = function (variavel:number):number{      //Função Implicita
    return 10
 }
-const f = nomeFuncao
+
 const f3 = f(10)
-const f2 = nomeFuncao(10)
+
 
 console.log(`O valor de x é ${f3}`)
 console.log("O valor de x é"+f3.toString())
