@@ -51,3 +51,15 @@ asdf = [0,1,2,3,4]
 
 let outraletra: number| string = 10;
 outraletra = "Ana" 
+
+
+//Funções em JavaScript/typrscript
+function nomeFuncao(variavel:number):number{
+   return 10
+}
+const f = nomeFuncao
+const f3 = f(10)
+const f2 = nomeFuncao(10)
+
+console.log(`O valor de x é ${f3}`)
+console.log("O valor de x é"+f3.toString())
