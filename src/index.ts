@@ -148,11 +148,14 @@ return novoVetor
 
 //Início do seu código
 function divisivelpor11 (min:number,max:number){
-    for (let i = min; i < max.length; i++) {
-        const element = array[i];
+    for (let i = min; i <= max; i++) {
+        let resultado:number[] = []
+      if( i % 11 == 0){
+        resultado.push[i]
+      }
         
     }
 
 }
-
+console.log(divisivelPor11(11, 110))
 //Fim do seu código
