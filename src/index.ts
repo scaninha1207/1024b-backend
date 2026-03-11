@@ -212,38 +212,85 @@
 /**
  * Exercício 01 - Calcular o quadrado de um número
  * Nome da função - calcularQuadrado
- * Crie uma função que receba um número e retorne o seu valor elevado ao quadrado.
- * @param {number} a Número a ser calculado
- * @returns {number} Retorna o quadrado do número
- * @example
- * calcularQuadrado(2) // 4
- * calcularQuadrado(-3) // 9
- */
+//  * Crie uma função que receba um número e retorne o seu valor elevado ao quadrado.
+//  * @param {number} a Número a ser calculado
+//  * @returns {number} Retorna o quadrado do número
+//  * @example
+ //  * calcularQuadrado(2) // 4
+//  * calcularQuadrado(-3) // 9
+//  */
 
-//Início do seu código
-function calcularQuadrado(a:number):number {
+// //Início do seu código
+// function calcularQuadrado(a:number):number {
 
-  return a * a;
-}
-console.log(calcularQuadrado(-3))
-console.log(calcularQuadrado(-6))
-//Fim do seu código
+//   return a * a;
+// }
+// console.log(calcularQuadrado(-3))
+// console.log(calcularQuadrado(-6))
+// //Fim do seu código
 
-/**
- * Exercício 02 - Verificar se um número é positivo
- * Nome da função - ehPositivo
- * Crie uma função que retorne verdadeiro se o número for maior que zero e falso caso contrário.
- * @param {number} a Número a ser verificado
- * @returns {boolean} Retorna true para positivos e false para negativos ou zero
- * @example
- * ehPositivo(2) // true
- * ehPositivo(-3) // false
- */
+// /**
+//  * Exercício 02 - Verificar se um número é positivo
+//  * Nome da função - ehPositivo
+//  * Crie uma função que retorne verdadeiro se o número for maior que zero e falso caso contrário.
+//  * @param {number} a Número a ser verificado
+//  * @returns {boolean} Retorna true para positivos e false para negativos ou zero
+//  * @example
+//  * ehPositivo(2) // true
+//  * ehPositivo(-3) // false
+//  */
 
-//Início do seu código
-function ehPositivo(a:number) {
+// //Início do seu código
+// function ehPositivo(a:number) {
     
     
+// }
+
+ //Fim do seu código
+
+
+//PROMISSES
+//síncronas e assíncronas
+//Paralelismo -> paralelo.
+
+
+console.log("Inicio da execução do código")
+//async function funcao(){}
+ const funcao = async() =>{
+  const prom = 
+  new Promise<string>((resolve,reject)=>{
+    setTimeout(()=> reject("Executei a função"),0)
+  })
+  return prom 
+     
+}
+try{
+  const resultado = await funcao()
+}
+catch(erro){
+  console.log("Minha mensagem de erro:"+erro)
 }
 
-//Fim do seu código
+// const resultado = await funcao()
+// console.log(resultado)
+
+// funcao()
+// .then((resultado) =>console.log(resultado))
+// .catch((erro)=>console.log("Erro Promise:"+ erro))
+// console.log(funcao())
+console.log("Fim da execução do código")
+
+
+//Crie uma função que tenha 50% de chance de retornar "tere" após 
+// 5 segundos ou a função devolve o valor null
+//function devolveTere()
+//E faça o tratamento de erro com o try catch.
+function devolveTere(){
+   const prom = 
+  new Promise<string>((resolve,reject)=>{
+    Math.random()>=0.5{};
+  })
+  
+
+}
+
