@@ -155,14 +155,48 @@
 
 // //Crie uma função que tenha 50% de chance de retornar "tere" após 
 // // 5 segundos ou a função devolve o valor null
-// //function devolveTere()
+//function devolveTere()
 // //E faça o tratamento de erro com o try catch.
-// function devolveTere(){
-//    const prom = 
-//   new Promise<string>((resolve,reject)=>{
-//     Math.random()>=0.5{};
+//  function devolveTere(){
+//  const prom = 
+//  new Promise<string>((resolve,reject)=>{
+//    Math.random()>=0.5{};
 //   })
+// }
   
 
-// }
+// // }
 
+
+
+//Funções de Vetores
+//FIND
+const vetor = [1,2,3,4,5,6,7]
+//Procurar -> find
+//Ele procura oq que nós mandarmos.
+// console.log(vetor.find((num:number)=>num==3))
+
+
+
+//FILTER
+const pessoas = [{id:1, nome:"tere"},{id:2,nome:"MArcelo"}]
+console.log(pessoas.filter((p)=>p.id>=1))
+
+//MAP
+//Também vamos passar uma função em cada elemento do vetor
+//E criar um novo vetor transformado pela função 
+
+function tranforma(x:number) {
+    return x+2
+    
+}
+const r = vetor.map(tranforma)
+console.log(r)
+
+
+
+
+
+//SPREAD
+const vetor2 = [...vetor,8,9]
+console.log(vetor2)
