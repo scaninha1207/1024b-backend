@@ -171,32 +171,57 @@
 
 //Funções de Vetores
 //FIND
-const vetor = [1,2,3,4,5,6,7]
-//Procurar -> find
-//Ele procura oq que nós mandarmos.
-// console.log(vetor.find((num:number)=>num==3))
+// const vetor = [1,2,3,4,5,6,7]
+// //Procurar -> find
+// //Ele procura oq que nós mandarmos.
+// // console.log(vetor.find((num:number)=>num==3))
 
 
 
-//FILTER
-const pessoas = [{id:1, nome:"tere"},{id:2,nome:"MArcelo"}]
-console.log(pessoas.filter((p)=>p.id>=1))
+// //FILTER
+// const pessoas = [{id:1, nome:"tere"},{id:2,nome:"MArcelo"}]
+// console.log(pessoas.filter((p)=>p.id>=1))
 
-//MAP
-//Também vamos passar uma função em cada elemento do vetor
-//E criar um novo vetor transformado pela função 
+// //MAP
+// //Também vamos passar uma função em cada elemento do vetor
+// //E criar um novo vetor transformado pela função 
 
-function tranforma(x:number) {
-    return x+2
+// function tranforma(x:number) {
+//     return x+2
     
+// }
+// const r = vetor.map(tranforma)
+// console.log(r)
+
+
+
+
+
+// //SPREAD
+// const vetor2 = [...vetor,8,9]
+// console.log(vetor2)
+
+
+import mysql from 'mysql2/promise';
+
+try {
+  // create the connection to database
+  const connection = await mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'aula1',
+  });
+
+  // execute will internally call prepare and query
+ // const preparacao = await connection.prepare("select * from pessoa ");
+ const id = 5
+ const nome = "Marcos'); drop database aula1;#"
+ const preparacao = await connection.prepare(`insert into pessoa (id,nome) values (?,?)`);
+  const [resultado,campos] = await preparacao.execute([id,nome])
+
+  console.log(resultado)
+await connection.end();
+} catch (err) {
+  console.log(err);
 }
-const r = vetor.map(tranforma)
-console.log(r)
 
-
-
-
-
-//SPREAD
-const vetor2 = [...vetor,8,9]
-console.log(vetor2)
