@@ -204,20 +204,19 @@
 
 import mysql from 'mysql2/promise';
 
-try {
+
   // create the connection to database
-  const connection = await mysql.createConnection({
+  const connection =  mysql.createPool({
     host: 'localhost',
     user: 'root',
     database: 'aula1',
   });
-
+try {
   // execute will internally call prepare and query
  // const preparacao = await connection.prepare("select * from pessoa ");
- const id = 5
- const nome = "Marcos'); drop database aula1;#"
- const preparacao = await connection.prepare(`insert into pessoa (id,nome) values (?,?)`);
-  const [resultado,campos] = await preparacao.execute([id,nome])
+
+  const [resultado,campos] =
+  await connection.execute(`SELECT * FROM pessoa`)
 
   console.log(resultado)
 await connection.end();
@@ -225,3 +224,30 @@ await connection.end();
   console.log(err);
 }
 
+
+
+
+
+
+
+
+
+
+//  const connection =  mysql.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     database: 'aula1',
+//   });
+// try {
+//   // execute will internally call prepare and query
+//  // const preparacao = await connection.prepare("select * from pessoa ");
+//  const id = 7
+//  const nome = "Algum nome"
+//   const [resultado,campos] =
+//   await connection.execute(`insert into pessoa  values (?,?)`,[id,nome])
+
+//   console.log(resultado)
+// await connection.end();
+// } catch (err) {
+//   console.log(err);
+// }
