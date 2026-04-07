@@ -144,7 +144,7 @@ app.post("/cadastro_produto", async (req, res) => {
     }
 
     const [resultado, campos]
-      = await connection.execute(`insert into pessoa value (?,?,?,?,?,?)`, [id, nome, categoria, preco, data_criacao, data_modificacao])
+      = await connection.execute(`insert into produto value (?,?,?,?,?,?)`, [id, nome, categoria, preco, data_criacao, data_modificacao])
     res.status(201).json({ mesagem: "Sucesso" })
     console.log(resultado)
   } catch (err) {
@@ -173,7 +173,7 @@ app.post("/cadastro_produto", async (req, res) => {
 
 app.get("/listar_produto", async (req, res) => {
   try {
-    const [resultado] = await connection.execute(`SELECT * FROM produto`);
+    const [resultado] = await connection.execute(`SELECT * FROM produto`)
     res.status(200).json(resultado);
   } catch (err) {
     console.error(err);
@@ -196,10 +196,12 @@ app.get("/listar_produtos_informatica", async (req, res) => {
 
 app.get("/listar_produtos_caros", async (req, res) => {
   try {
-    const [resultado] = await connection.execute(`SELECT * FROM produto WHERE preco > ?`, [100.00]);
+    const [resultado] = await connection.execute(`SELECT * FROM produto WHERE preco > 100.00 `);
     res.status(200).json(resultado);
   } catch (err) {
     console.error(err);
     res.status(500).json({ mensagem: "Erro no servidor!" });
   }
 });
+
+
