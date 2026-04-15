@@ -1,7 +1,7 @@
-import mysql from 'mysql2/promise'
 import express from 'express'
 import MysqlErrorHandle from './mysql_error_handle.js';
 import  connection from './mysql_connection.js';
+
 import { type RowDataPacket } from "mysql2";
 import { time } from 'node:console';
 interface Ipizza extends RowDataPacket{
