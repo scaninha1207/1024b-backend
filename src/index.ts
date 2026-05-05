@@ -4,8 +4,10 @@ import express from 'express'
 import MysqlErrorHandle from './mysql_error_handle.js';
 
 import connection from './mysql_connection.js'
+import cors from 'cors'
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 //Criar servidor
  app.listen(8000, () => {
@@ -127,6 +129,29 @@ mysqlErrorHandle.validar()
 });
 
 
+//correção
+app.get("/quantidade_produtos_por_cliente", async (req, res) => {
+  try {
+    const [resultado] = await connection.execute(` 
+        SELECT clientes.nome AS nome,idpedidos, SUM(quantidade) AS quantidade_produto 
+        FROM clientes  
+        INNER JOIN pedidos 
+         ON pedidos.clientes_idclientes  = clientes.idclientes
+        INNER JOIN itenspedidos  
+         ON itenspedidos.pedidos_idpedidos = pedidos.idpedidos
+         GROUP BY idpedidos
+        
+    `);
+    
+    res.status(200).json(resultado);
+  } catch (err) {
+    
+ const mysqlErrorHandle = new MysqlErrorHandle(err,res)
+mysqlErrorHandle.validar()
+
+}
+});      
+
 
 
 
@@ -153,6 +178,33 @@ mysqlErrorHandle.validar()
 
 }
 });
+
+//correção
+app.get("/valor_pedido_total", async (req, res) => {
+  try {
+    const [resultado] = await connection.execute(`SELECT clientes.nome AS nome, SUM(itenspedidos.quantidade * produtos.preco) AS valor
+        FROM clientes  
+        INNER JOIN pedidos
+         ON clientes.idclientes = pedidos.clientes_idclientes
+        INNER JOIN itenspedidos  
+         ON pedidos.idpedidos = itenspedidos.pedidos_idpedidos
+        INNER JOIN produtos
+        ON idprodutos = produtos_idprodutos
+         GROUP BY idpedidos
+` );
+    res.status(200).json(resultado);
+  } catch (err) {
+    
+ const mysqlErrorHandle = new MysqlErrorHandle(err,res)
+mysqlErrorHandle.validar()
+
+}
+});
+
+
+
+
+
 
 
 
