@@ -202,33 +202,72 @@ mysqlErrorHandle.validar()
 });
 
 
-// }) //listar
- app.post("/pessoa", async (req, res) => {
-  try {
-//     // "execute" irá chamar internamente a preparação e a consulta (query)
-//     // const preparacao = await connection.prepare("select * from pessoa");
-   const { id, nome } = req.body
-//     //Valide se o id e o nome foram passados corretamente. (Algum valor)
-//     //Se não foram, retone o código 400 com a mensagem "id ou nome inválidos"
-//     //Não deixe o código executar a parte de baixo quando for inválido.
+app.post('/pessoa', async (req, res) => {
 
- if (id != null && nome != "") {
-      res.status(400).json({ mensagem: "Id ou nome diferente de 0" })
-   }
+    const connection = mysql.createPool({
+        host: 'localhost',
+        user: 'root',
+        database: 'aula1',
+    });
 
-    const [resultado, campos]
-      = await connection.execute(`insert into pessoa value (?,?)`, [id, nome])
-   res.status(201).json({ mesagem: "Sucesso" })
-   console.log(resultado)
-   } catch (err) {
-    
- const mysqlErrorHandle = new MysqlErrorHandle(err,res)
- mysqlErrorHandle.validar()
+    try {
 
-   }
- }) 
-// inserir
+        const { id, nome } = req.body;
 
+        // validação
+        if (!id || !nome) {
+            res.status(400).json({
+                mensagem: 'id e nome sao obrigatorios'
+            });
+
+            return;
+        }
+
+        await connection.execute(
+            `INSERT INTO aula1.pessoa VALUES (?, ?)`,
+            [id, nome]
+        );
+
+        res.status(201).json({
+            mensagem: 'Pessoa inserida com sucesso'
+        });
+
+    } catch (err) {
+        const mySQLErrorHandle = new MysqlErrorHandle(err, res);
+        mySQLErrorHandle.validar();
+    }
+})//inserir pessoa
+
+//2
+
+app.post('/cadastro_produto_v2', async (req, res) => {
+try {
+
+        const { id, nome, categoria, preco} = req.body;
+
+        // validação
+        if (!id || !nome || !categoria || !preco)  {
+            res.status(400).json({
+                mensagem: 'id e nome sao obrigatorios'
+            });
+
+            return;
+        }
+
+        await connection.execute(
+            `INSERT INTO aula1.pessoa VALUES (?, ?)`,
+            [id, nome]
+        );
+
+        res.status(201).json({
+            mensagem: 'Pessoa inserida com sucesso'
+        });
+
+    } catch (err) {
+        const mySQLErrorHandle = new MysqlErrorHandle(err, res);
+        mySQLErrorHandle.validar();
+    }
+})//inserir pesso
 
 
 
