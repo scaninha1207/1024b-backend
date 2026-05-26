@@ -240,39 +240,37 @@ app.post('/pessoa', async (req, res) => {
 
 //2
 
+
+//aprimorando o post
+///cadastro_produto_v2
+//apenas id, nome, categoria e preco
+//o servidor deve gerar data criacao e data modificacao automaticamente com new Date() e inserir data_modificacao como null. Retornar 201 com mensagem de sucesso.
+
 app.post('/cadastro_produto_v2', async (req, res) => {
 try {
+        const { id, nome, categoria, preco } = req.body
 
-        const { id, nome, categoria, preco} = req.body;
-
-        // validação
-        if (!id || !nome || !categoria || !preco)  {
-            res.status(400).json({
-                mensagem: 'id e nome sao obrigatorios'
-            });
-
+        if (!id || !nome || !categoria || !preco) {
+            res.status(400).json({ mensagem: 'dados invalidos' });
             return;
         }
 
-        await connection.execute(
-            `INSERT INTO aula1.pessoa VALUES (?, ?)`,
-            [id, nome]
-        );
+        const data_criacao = new Date();
+        const data_modificacao = null;
 
-        res.status(201).json({
-            mensagem: 'Pessoa inserida com sucesso'
-        });
+        const [resultado, campos] =
+            await connection.execute(
+                `insert into produto values (?, ?, ?, ?, ?, ?)`,
+                [id, nome, categoria, preco, data_criacao, data_modificacao]
+            );
 
+        console.log(resultado);
+        res.status(201).json({ mensagem: 'Produto inserido com sucesso' });
     } catch (err) {
         const mySQLErrorHandle = new MysqlErrorHandle(err, res);
         mySQLErrorHandle.validar();
     }
-})//inserir pesso
-
-
-
-
-
+})
 
 
 
