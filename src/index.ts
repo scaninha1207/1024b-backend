@@ -273,4 +273,65 @@ try {
 })
 
 
+app.post('/cadastro_multiplos_produtos', async (req, res) => {
 
+
+    try {
+        const produtos = req.body;
+
+        if (!Array.isArray(produtos)) {
+            res.status(400).json({ mensagem: 'Não é um array de produtos' });
+            return;
+        }
+
+        const data_criacao = new Date();
+        const data_modificacao = null;
+
+        for (const produto of produtos) {
+            const { id, nome, categoria, preco } = produto;
+
+            if (!id || !nome || !categoria || !preco) {
+                res.status(400).json({ mensagem: 'dados invalidos' });
+                return;
+            }
+
+            const [resultado, campos] =
+                await connection.execute(
+                    `insert into produto values (?, ?, ?, ?, ?, ?)`,
+                    [id, nome, categoria, preco, data_criacao, data_modificacao]
+                );
+        }
+
+        res.status(201).json({ mensagem: `${produtos.length} produtos cadastrados com sucesso!` });
+    } catch (err) {
+        const mySQLErrorHandle = new MysqlErrorHandle(err, res);
+        mySQLErrorHandle.validar();
+    }
+})
+
+
+
+app.put('/produto/:id', async (req, res) => {
+ 
+  const{id} = req.params;
+
+  let{nome, preco, categoria} = req.body;
+
+  preco = preco ?? null;
+  categoria = categoria?? null;
+  
+  await connection.execute(
+    `
+    UPDATE produto 
+    SET nome = ?, preco = ? , categoria = ? 
+    WHERE id = ?
+    `,
+    [nome, preco, categoria, id]
+  )
+ 
+return res.json({
+  mensagem:"Produto substituido"
+})
+
+
+})
