@@ -70,7 +70,7 @@ function App() {
                 >
                   <use href="/icons.svg#github-icon"></use>
                 </svg>
-                GitHub
+                filipo
               </a>
             </li>
             <li>
@@ -82,7 +82,7 @@ function App() {
                 >
                   <use href="/icons.svg#discord-icon"></use>
                 </svg>
-                Discord
+                Ana
               </a>
             </li>
             <li>
@@ -94,7 +94,7 @@ function App() {
                 >
                   <use href="/icons.svg#x-icon"></use>
                 </svg>
-                X.com
+                matheus
               </a>
             </li>
             <li>
@@ -106,7 +106,7 @@ function App() {
                 >
                   <use href="/icons.svg#bluesky-icon"></use>
                 </svg>
-                Bluesky
+                mika
               </a>
             </li>
           </ul>
