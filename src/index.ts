@@ -2,6 +2,7 @@ import mysql, { type RowDataPacket } from 'mysql2/promise';
 
 import express from 'express'
 import MysqlErrorHandle from './mysql_error_handle.js';
+import type { ResultSetHeader } from "mysql2";
 
 import connection from './mysql_connection.js'
 import cors from 'cors'
@@ -202,13 +203,12 @@ mysqlErrorHandle.validar()
 });
 
 
+
+
+//1
 app.post('/pessoa', async (req, res) => {
 
-    const connection = mysql.createPool({
-        host: 'localhost',
-        user: 'root',
-        database: 'aula1',
-    });
+    
 
     try {
 
@@ -239,8 +239,6 @@ app.post('/pessoa', async (req, res) => {
 })//inserir pessoa
 
 //2
-
-
 //aprimorando o post
 ///cadastro_produto_v2
 //apenas id, nome, categoria e preco
@@ -272,7 +270,7 @@ try {
     }
 })
 
-
+//3
 app.post('/cadastro_multiplos_produtos', async (req, res) => {
 
 
@@ -335,3 +333,81 @@ return res.json({
 
 
 })
+
+
+//1.Crie a rota DELETE /produto/:id. O id vem pela URL. Se não existir, retornar 404. Se deletado, retornar 200.
+// Deleta pessoa
+// Deleta produto
+app.delete("/produto/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await connection.execute<ResultSetHeader>(
+      "DELETE FROM produto WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensagem: "Produto não encontrado!" });
+    }
+
+    return res
+      .status(200)
+      .json({ mensagem: "Produto deletado com sucesso!" });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+
+//2.Crie a rota DELETE /pessoa/:id. O id vem pela URL. Fazer um SELECT antes de deletar para verificar existência. Se não existir, retornar 404. Se deletado, retornar 200.
+app.delete("/pessoa/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await connection.execute<ResultSetHeader>(
+      "SELECT * FROM pessoa WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensagem: "Produto não encontrado!" });
+    }
+    await connection.execute<ResultSetHeader>(
+      "DELETE FROM pessoa WHERE id = ?",
+      [id]
+    );
+
+    return res
+      .status(200)
+      .json({ mensagem: "Produto deletado com sucesso!" });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+//3.Crie a rota DELETE /produto_categoria/:categoria. A categoria vem pela URL. Se não existir nenhum produto nessa categoria, retornar 404.
+//  Se deletar, retornar 200 com "X produtos deletados com sucesso!".
+app.delete("/produto_categoria/:categoria", async (req, res) => {
+  const { categoria } = req.params;
+
+  try {
+    const [result] = await connection.execute<ResultSetHeader>(
+      "DELETE FROM produto WHERE categoria = ?",
+      [categoria]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensagem: "Produto não encontrado!" });
+    }
+const quantidade = result.affectedRows
+    return res
+      .status(200)
+      .json({ mensagem: quantidade +" Produtos deletado com sucesso!" });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
