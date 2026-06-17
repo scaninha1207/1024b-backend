@@ -8,6 +8,8 @@ interface Pessoa {
 interface Produto {
   id: number;
   nome: string;
+  preco: number;
+  categoria: string;
 }
 
 type Aba = 'pessoas' | 'produtos';
@@ -26,6 +28,38 @@ function App() {
 
   const [abaAtiva, setAbaAtiva] = useState<Aba>('pessoas');
   const [temaEscuro, setTemaEscuro] = useState(false);
+  const [produtos, setProdutos] =
+    useState<Produto[]>([]);
+
+  const [novoProdutoId,
+    setNovoProdutoId] =
+    useState('');
+
+  const [novoProdutoNome,
+    setNovoProdutoNome] =
+    useState('');
+  const [novoProdutoPreco,
+    setNovoProdutoPreco] =
+    useState('');
+
+  const [novaCategoria,
+    setNovaCategoria] =
+    useState('');
+
+  const [editandoProdutoId,
+    setEditandoProdutoId] =
+    useState<number | null>(null);
+
+  const [produtoEditado,
+    setProdutoEditado] =
+    useState('');
+  const [precoEditado,
+    setPrecoEditado] =
+    useState('');
+
+  const [categoriaEditada,
+    setCategoriaEditada] =
+    useState('');
 
   useEffect(() => {
     async function carregarPessoas() {
@@ -55,6 +89,22 @@ function App() {
     carregarPessoas();
   }, []);
 
+  useEffect(() => {
+
+    if (
+      abaAtiva ===
+      'produtos'
+    ) {
+
+      carregarProdutos();
+
+    }
+
+  },
+    [
+      abaAtiva
+    ]);
+
   async function recarregarPessoas() {
     try {
       setCarregando(true);
@@ -77,6 +127,136 @@ function App() {
     } finally {
       setCarregando(false);
     }
+  }
+
+  async function carregarProdutos() {
+    try {
+      const resposta = await fetch(
+        'http://localhost:8000/produtos'
+      );
+
+      if (!resposta.ok) {
+        throw new Error();
+      }
+
+      const dados = await resposta.json();
+
+      setProdutos(dados);
+
+    } catch {
+      alert('Erro ao carregar produtos');
+    }
+  }
+
+  async function salvarProduto() {
+
+    await fetch(
+      'http://localhost:8000/produtos',
+
+      {
+
+        method: 'POST',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify({
+
+          id: Number(
+            novoProdutoId
+          ),
+
+          nome:
+            novoProdutoNome,
+
+          preco: Number(
+            novoProdutoPreco
+          ),
+
+          categoria:
+            novaCategoria
+
+        })
+
+      }
+
+    );
+
+    carregarProdutos();
+
+    setNovoProdutoId('');
+
+    setNovoProdutoNome('');
+
+    setNovoProdutoPreco('');
+
+    setNovaCategoria('');
+
+  }
+
+  async function editarProduto(
+    id: number
+  ) {
+
+    await fetch(
+
+      `http://localhost:8000/produto/${id}`,
+
+      {
+
+        method: 'PATCH',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify({
+
+          nome:
+            produtoEditado,
+
+          preco: Number(
+            precoEditado
+          ),
+
+          categoria:
+            categoriaEditada
+
+        })
+
+      }
+
+    );
+
+    carregarProdutos();
+
+    setEditandoProdutoId(
+      null
+    );
+
+  }
+
+  async function deletarProduto(
+    id: number
+  ) {
+
+    await fetch(
+
+      `http://localhost:8000/produto/${id}`,
+
+      {
+
+        method: 'DELETE'
+
+      }
+
+    );
+
+    carregarProdutos();
+
   }
 
   async function handleSalvar() {
@@ -358,7 +538,7 @@ function App() {
       padding: '12px 14px',
       borderRadius: '8px',
       backgroundColor: temaEscuro ? '#2a1a24' : '#f8eef4',
-      color: temaEscuro ? '#d163a7' : '#a12c7b',
+      color: temaEscuro ? '#7e38ff' : '#452ca1',
       fontSize: '14px',
       fontWeight: 600,
     } as React.CSSProperties,
@@ -646,28 +826,332 @@ function App() {
           </>
         )}
 
-        {abaAtiva === 'produtos' && (
-          <>
-            <div style={{ marginBottom: '24px' }}>
-              <h1 style={estilos.tituloPagina}>Produtos</h1>
-              <p style={estilos.subtitulo}>
-                Esta aba foi criada e está vazia por enquanto.
-              </p>
-            </div>
+{abaAtiva === 'produtos' && (
+  <>
+    <div style={{ marginBottom: '24px' }}>
+      <h1 style={estilos.tituloPagina}>Produtos</h1>
 
-            <div style={estilos.card}>
-              <div style={estilos.cardHeader}>Área de produtos</div>
-              <div style={estilos.cardBody}>
-                <p style={{ color: '#7a7974' }}>
-                  Aqui vamos montar o CRUD de produtos no próximo passo.
-                </p>
-              </div>
-            </div>
-          </>
-        )}
+      <p style={estilos.subtitulo}>
+        Cadastro e gerenciamento de produtos.
+      </p>
+    </div>
+
+    <div style={estilos.cardInfo}>
+      <div style={estilos.numeroInfo}>{produtos.length}</div>
+      <div style={estilos.legendaInfo}>
+        Total de produtos cadastrados
+      </div>
+    </div>
+
+    <div style={estilos.card}>
+      <div style={estilos.cardHeader}>
+        Cadastrar produto
+      </div>
+
+      <div style={estilos.cardBody}>
+        <div style={estilos.formGrid}>
+          <div style={estilos.campo}>
+            <label style={estilos.label}>ID</label>
+
+            <input
+              style={estilos.input}
+              placeholder="Ex: 1"
+              value={novoProdutoId}
+              onChange={(e) =>
+                setNovoProdutoId(e.target.value)
+              }
+            />
+          </div>
+
+          <div style={estilos.campo}>
+            <label style={estilos.label}>Nome</label>
+
+            <input
+              style={estilos.input}
+              placeholder="Digite o nome"
+              value={novoProdutoNome}
+              onChange={(e) =>
+                setNovoProdutoNome(e.target.value)
+              }
+            />
+          </div>
+
+          <button
+            style={estilos.botaoPrimario}
+            onClick={salvarProduto}
+          >
+            Cadastrar
+          </button>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '10px',
+            marginTop: '10px'
+          }}
+        >
+          <div style={estilos.campo}>
+            <label style={estilos.label}>Preço</label>
+
+            <input
+              style={estilos.input}
+              placeholder="R$ 0,00"
+              value={novoProdutoPreco}
+              onChange={(e) =>
+                setNovoProdutoPreco(
+                  e.target.value
+                )
+              }
+            />
+          </div>
+
+          <div style={estilos.campo}>
+            <label style={estilos.label}>
+              Categoria
+            </label>
+
+            <input
+              style={estilos.input}
+              placeholder="Categoria"
+              value={novaCategoria}
+              onChange={(e) =>
+                setNovaCategoria(
+                  e.target.value
+                )
+              }
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style={estilos.card}>
+      <div
+        style={{
+          ...estilos.cardHeader,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <span>Lista de produtos</span>
+
+        <button
+          style={estilos.botaoSecundario}
+          onClick={carregarProdutos}
+        >
+          Atualizar
+        </button>
+      </div>
+
+      <div style={estilos.tabelaWrapper}>
+        <table style={estilos.tabela}>
+          <thead>
+            <tr>
+              <th style={estilos.th}>ID</th>
+              <th style={estilos.th}>Nome</th>
+              <th style={estilos.th}>Preço</th>
+              <th style={estilos.th}>Categoria</th>
+
+              <th
+                style={{
+                  ...estilos.th,
+                  textAlign: 'center',
+                 width: '80px'
+                 
+                }}
+              >
+                Ações
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {produtos.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  style={estilos.vazio}
+                >
+                  Nenhum produto encontrado.
+                </td>
+              </tr>
+            ) : (
+              produtos.map((produto) => (
+                <tr key={produto.id}>
+                  <td style={estilos.td}>
+                    {produto.id}
+                  </td>
+
+                  <td style={estilos.td}>
+                    {editandoProdutoId ===
+                    produto.id ? (
+                      <input
+                        style={
+                          estilos.inputEdicao
+                        }
+                        value={produtoEditado}
+                        onChange={(e) =>
+                          setProdutoEditado(
+                            e.target.value
+                          )
+                        }
+                      />
+                    ) : (
+                      <div
+                        style={
+                          estilos.avatarLinha
+                        }
+                      >
+                        <div
+                          style={
+                            estilos.avatar
+                          }
+                        >
+                          {produto.nome[0]?.toUpperCase()}
+                        </div>
+
+                        <span>
+                          {produto.nome}
+                        </span>
+                      </div>
+                    )}
+                  </td>
+
+                  <td style={estilos.td}>
+                    {editandoProdutoId ===
+                    produto.id ? (
+                      <input
+                        style={
+                          estilos.inputEdicao
+                        }
+                        value={precoEditado}
+                        onChange={(e) =>
+                          setPrecoEditado(
+                            e.target.value
+                          )
+                        }
+                      />
+                    ) : (
+                      `R$ ${produto.preco}`
+                    )}
+                  </td>
+
+                  <td style={estilos.td}>
+                    {editandoProdutoId ===
+                    produto.id ? (
+                      <input
+                        style={
+                          estilos.inputEdicao
+                        }
+                        value={
+                          categoriaEditada
+                        }
+                        onChange={(e) =>
+                          setCategoriaEditada(
+                            e.target.value
+                          )
+                        }
+                      />
+                    ) : (
+                      produto.categoria
+                    )}
+                  </td>
+
+                  <td style={estilos.td}>
+                    <div
+                      style={
+                        estilos.acoes
+                      }
+                    >
+                      {editandoProdutoId ===
+                      produto.id ? (
+                        <>
+                          <button
+                            style={
+                              estilos.botaoPrimario
+                            }
+                            onClick={() =>
+                              editarProduto(
+                                produto.id
+                              )
+                            }
+                          >
+                            Salvar
+                          </button>
+
+                          <button
+                            style={
+                              estilos.botaoSecundario
+                            }
+                            onClick={() =>
+                              setEditandoProdutoId(
+                                null
+                              )
+                            }
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            style={
+                              estilos.botaoSecundario
+                            }
+                            onClick={() => {
+                              setEditandoProdutoId(
+                                produto.id
+                              );
+
+                              setProdutoEditado(
+                                produto.nome
+                              );
+
+                              setPrecoEditado(
+                                String(
+                                  produto.preco
+                                )
+                              );
+
+                              setCategoriaEditada(
+                                produto.categoria
+                              );
+                            }}
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            style={
+                              estilos.botaoPerigo
+                            }
+                            onClick={() =>
+                              deletarProduto(
+                                produto.id
+                              )
+                            }
+                          >
+                            Excluir
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </>
+)}
+        
       </main>
     </div>
   );
 }
-
 export default App;

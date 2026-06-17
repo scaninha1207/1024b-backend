@@ -199,6 +199,18 @@ mysqlErrorHandle.validar()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 //1
 app.post('/pessoa', async (req, res) => {
 
@@ -324,9 +336,304 @@ app.put('/produto/:id', async (req, res) => {
 return res.json({
   mensagem:"Produto substituido"
 })
+})
+
+
+/*
+## Exercício 2
+
+**Na exercício anterior, criamos juntos a rota PUT /produto/:id que atualiza um produto no banco. Porém, o código que fizemos possui um problema: 
+se o cliente não enviar todos os campos no body, os campos não enviados são sobrescritos com null, apagando os dados que já estavam salvos no banco.***/
+
+app.put('/produto/:id', async (req, res) => {
+ 
+  const{id} = req.params;
+
+  let{nome, preco, categoria} = req.body;
+
+  preco = preco ?? null;
+  categoria = categoria?? null;
+  
+  await connection.execute(
+    `
+    UPDATE produto 
+    SET nome = ?, preco = ? , categoria = ? 
+    WHERE id = ?
+    `,
+    [nome, preco, categoria, id]
+  )
+ 
+return res.json({
+  mensagem:"Produto substituido"
+})
 
 
 })
+
+/*## Exercício 3
+
+Atualizar preço com data_modificacao automática
+Enunciado: Crie a rota PUT /produto_preco/:id. Recebe o id pela URL e o novo preço pelo body. 
+Além do preço, o servidor deve atualizar data_modificacao automaticamente com new Date(). 
+Retornar 404 se não encontrar, 200 se atualizar./*/
+
+app.put('/produto_preco/:id', async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const { preco } = req.body;
+
+    const data_modificacao = new Date();
+
+
+    const [resultado] = await connection.execute<ResultSetHeader>(
+      `
+      UPDATE produto
+      SET preco = ?, data_modificacao = ?
+      WHERE id = ?
+      `,
+      [preco, data_modificacao, id]
+    );
+
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensagem: "Produto não encontrado!"
+      });
+    }
+
+
+    return res.status(200).json({
+      mensagem: "Preço atualizado com sucesso!"
+    });
+
+
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+
+/*## Exercício 4
+
+Crie a rota PUT /produto_completo/:id. Recebe o id pela URL e qualquer combinação de nome, preco e categoria pelo body.
+O servidor deve buscar o produto no banco antes de atualizar.
+Se não existir, retornar 404.
+Para cada campo não enviado, manter o valor original do banco usando o operador ??.
+Atualizar também data_modificacao com new Date().
+Retornar 200 com mensagem de sucesso.*/
+
+app.put('/produto_completo/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const produto : any = await connection.execute(
+      `
+      SELECT * FROM produto
+      WHERE id = ?
+      `,
+      [id]
+    );
+    if (produto.length === 0) {
+      return res.status(404).json({
+        mensagem: "Produto não encontrado!"
+      });
+    }
+    const produtoAtual = produto[0];
+    let { nome, preco, categoria } = req.body;
+    nome = nome ?? produtoAtual.nome;
+    preco = preco ?? produtoAtual.preco;
+    categoria = categoria ?? produtoAtual.categoria;
+    const data_modificacao = new Date();
+    await connection.execute(
+      `
+      UPDATE produto
+      SET nome = ?, preco = ?, categoria = ?, data_modificacao = ?
+      WHERE id = ?
+      `,
+      [nome, preco, categoria, data_modificacao, id]
+    );
+    return res.status(200).json({
+      mensagem: "Produto atualizado com sucesso!"
+    });
+
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+//PACHT
+/*## Exercicio 1
+**Crie a rota PATCH /pessoa/:id. O cliente envia apenas o novo nome pelo body. O servidor deve verificar se a pessoa existe — se não existir, retornar 404. 
+Se o campo nome não for enviado, retornar 400. Se atualizar com sucesso, retornar 200.***/ 
+app.patch('/pessoa/:id', async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { nome } = req.body;
+
+    if (!nome) {
+      return res.status(400).json({
+        mensagem: "Nome obrigatório"
+      });
+    }
+    const pessoa : any = await connection.execute(
+      `
+      SELECT * FROM pessoa
+      WHERE id = ?
+      `,
+      [id]
+    );
+    if (pessoa.length === 0) {
+      return res.status(404).json({
+        mensagem: "Pessoa não encontrada!"
+      });
+    }
+    await connection.execute(
+      `
+      UPDATE pessoa
+      SET nome = ?
+      WHERE id = ?
+      `,
+      [nome, id]
+    );
+    return res.status(200).json({
+      mensagem: "Pessoa atualizada com sucesso!"
+    });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+/*## Exercício 2
+
+Crie a rota PATCH /produto/:id. O cliente pode enviar qualquer combinação de nome, preco e categoria.
+Os campos não enviados devem manter o valor atual do banco usando ??.
+Atualizar data_modificacao automaticamente.
+Retornar 404 se não encontrar, 200 se atualizar. */
+app.patch('/produto/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const produto : any = await connection.execute(
+      `
+      SELECT * FROM produto
+      WHERE id = ?
+      `,
+      [id]
+    );
+    if (produto.length === 0) {
+      return res.status(404).json({
+        mensagem: "Produto não encontrado!"
+      });
+    }
+    const produtoAtual = produto[0];
+    let { nome, preco, categoria } = req.body;
+    nome = nome ?? produtoAtual.nome;
+    preco = preco ?? produtoAtual.preco;
+    categoria = categoria ?? produtoAtual.categoria;
+    const data_modificacao = new Date();
+    await connection.execute(
+      `
+      UPDATE produto
+      SET nome = ?, preco = ?, categoria = ?, data_modificacao = ?
+      WHERE id = ?
+      `,
+      [nome, preco, categoria, data_modificacao, id]
+    );
+ return res.status(200).json({
+      mensagem: "Produto atualizado com sucesso!"
+    });
+
+
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+
+    /*
+    ## Exercicio 3
+
+**Crie a rota PATCH /produto_categoria. O cliente envia categoria_atual e nova_categoria pelo body. 
+Atualizar a categoria de todos os produtos que tiverem categoria_atual. 
+Se não existir nenhum, retornar 404. Retornar 200 com "X produtos atualizados com sucesso!".** 
+    */
+app.patch('/produto_categoria', async (req, res) => {
+  try {
+    const { categoria_atual, nova_categoria } = req.body;
+    const [resultado] = await connection.execute<ResultSetHeader>(
+      `
+      UPDATE produto
+      SET categoria = ?
+      WHERE categoria = ?
+      `,
+      [nova_categoria, categoria_atual]
+    );
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensagem: "Nenhum produto encontrado!"
+      });
+    }
+    const quantidade = resultado.affectedRows;
+    return res.status(200).json({
+      mensagem: quantidade + " produtos atualizados com sucesso!"
+    });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+   
+/*
+## Exercicio 4
+
+**Crie a rota PATCH /produto_desconto/:id. O cliente envia percentual_desconto (0 a 100) pelo body. Calcular o novo preço: preco - (preco * percentual / 100). 
+Atualizar data_modificacao.Retornar 404 se não encontrar, 200 com "Desconto aplicado! Novo preço: R$ X".**
+*/
+app.patch('/produto_desconto/:id', async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { percentual_desconto } = req.body;
+    const produto : any = await connection.execute(
+      `
+      SELECT * FROM produto
+      WHERE id = ?
+      `,
+      [id]
+    );
+    if (produto.length === 0) {
+      return res.status(404).json({
+        mensagem: "Produto não encontrado!"
+      });
+    }
+    const produtoAtual = produto[0];
+    const novoPreco = produtoAtual.preco - 
+    (produtoAtual.preco * percentual_desconto / 100);
+    const data_modificacao = new Date();
+    await connection.execute(
+      `
+      UPDATE produto
+      SET preco = ?, data_modificacao = ?
+      WHERE id = ?
+      `,
+      [novoPreco, data_modificacao, id]
+    );
+    return res.status(200).json({
+      mensagem: "Desconto aplicado! Novo preço: R$ " + novoPreco
+    });
+  } catch (err) {
+    const mysqlErrorHandle = new MysqlErrorHandle(err, res);
+    mysqlErrorHandle.validar();
+  }
+});
+
+
+
 
 
 //1.Crie a rota DELETE /produto/:id. O id vem pela URL. Se não existir, retornar 404. Se deletado, retornar 200.
