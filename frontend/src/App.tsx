@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
-
 interface Pessoa {
   id: number;
   nome: string;
 }
 
 interface Produto {
-  id: number;
-  nome: string;
-  preco: number;
-  categoria: string;
+  ID_PRODUTO: number;
+  NOME: string;
+  MARCA: string;
+  TAMANHO: string;
+  COR: string;
+  CATEGORIA: string;
+  VALOR_UNITARIO: number;
+  QUANTIDADE_ESTOQUE: number;
 }
 
 type Aba = 'pessoas' | 'produtos';
@@ -28,38 +30,27 @@ function App() {
 
   const [abaAtiva, setAbaAtiva] = useState<Aba>('pessoas');
   const [temaEscuro, setTemaEscuro] = useState(false);
-  const [produtos, setProdutos] =
-    useState<Produto[]>([]);
 
-  const [novoProdutoId,
-    setNovoProdutoId] =
-    useState('');
+  const [produtos, setProdutos] = useState<Produto[]>([]);
 
-  const [novoProdutoNome,
-    setNovoProdutoNome] =
-    useState('');
-  const [novoProdutoPreco,
-    setNovoProdutoPreco] =
-    useState('');
+  const [novoProdutoNome, setNovoProdutoNome] = useState('');
+  const [novaMarca, setNovaMarca] = useState('');
+  const [novoTamanho, setNovoTamanho] = useState('');
+  const [novaCor, setNovaCor] = useState('');
+  const [novaCategoria, setNovaCategoria] = useState('');
+  const [novoProdutoPreco, setNovoProdutoPreco] = useState('');
+  const [novoEstoque, setNovoEstoque] = useState('');
 
-  const [novaCategoria,
-    setNovaCategoria] =
-    useState('');
-
-  const [editandoProdutoId,
-    setEditandoProdutoId] =
+  const [editandoProdutoId, setEditandoProdutoId] =
     useState<number | null>(null);
 
-  const [produtoEditado,
-    setProdutoEditado] =
-    useState('');
-  const [precoEditado,
-    setPrecoEditado] =
-    useState('');
-
-  const [categoriaEditada,
-    setCategoriaEditada] =
-    useState('');
+  const [produtoEditado, setProdutoEditado] = useState('');
+  const [marcaEditada, setMarcaEditada] = useState('');
+  const [tamanhoEditado, setTamanhoEditado] = useState('');
+  const [corEditada, setCorEditada] = useState('');
+  const [categoriaEditada, setCategoriaEditada] = useState('');
+  const [precoEditado, setPrecoEditado] = useState('');
+  const [estoqueEditado, setEstoqueEditado] = useState('');
 
   useEffect(() => {
     async function carregarPessoas() {
@@ -162,23 +153,16 @@ function App() {
             'application/json'
         },
 
-        body: JSON.stringify({
-
-          id: Number(
-            novoProdutoId
-          ),
-
-          nome:
-            novoProdutoNome,
-
-          preco: Number(
-            novoProdutoPreco
-          ),
-
-          categoria:
-            novaCategoria
-
-        })
+       
+body: JSON.stringify({
+  nome: novoProdutoNome,
+  marca: novaMarca,
+  tamanho: novoTamanho,
+  cor: novaCor,
+  categoria: novaCategoria,
+  valor: Number(novoProdutoPreco),
+  estoque: Number(novoEstoque)
+})
 
       }
 
@@ -950,10 +934,14 @@ function App() {
         <table style={estilos.tabela}>
           <thead>
             <tr>
-              <th style={estilos.th}>ID</th>
-              <th style={estilos.th}>Nome</th>
-              <th style={estilos.th}>Preço</th>
-              <th style={estilos.th}>Categoria</th>
+             
+<th>Nome</th>
+<th>Marca</th>
+<th>Tamanho</th>
+<th>Cor</th>
+<th>Categoria</th>
+<th>Valor</th>
+<th>Estoque</th>
 
               <th
                 style={{

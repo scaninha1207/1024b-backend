@@ -25,13 +25,24 @@ interface IPessoa extends RowDataPacket {
   nome: string;
 }
 
+
+
 interface IProduto extends RowDataPacket {
-  id: number;
-  nome: string;
-  categoria: string;
-  preco: number;
-  data_criacao: Date;
-  data_modificacao: Date | null;
+  ID_PRODUTO: number;
+  NOME: string;
+  MARCA: string;
+  TAMANHO: string;
+  COR: string;
+  CATEGORIA: string;
+  VALOR_UNITARIO: number;
+  QUANTIDADE_ESTOQUE: number;
+}
+interface IPedido extends RowDataPacket {
+  ID_PEDIDO: number;
+  ID_CLIENTE: number;
+  ID_PRODUTO: number;
+  QUANTIDADE: number;
+  VALOR_TOTAL: number;
 }
 
 // ==================== ROTAS PESSOA ====================
@@ -151,8 +162,12 @@ app.delete('/pessoa/:id', async (req, res) => {
 // GET /produtos
 app.get('/produtos', async (req, res) => {
   try {
-    const [dados] = await connection.execute<IProduto[]>('SELECT * FROM produto');
+    const [dados] = await connection.execute<IProduto[]>(
+      'SELECT * FROM produtos'
+    );
+
     return res.status(200).json(dados);
+
   } catch (err) {
     const mysqlErrorHandle = new MysqlErrorHandle(err, res);
     return mysqlErrorHandle.validar();
@@ -161,78 +176,130 @@ app.get('/produtos', async (req, res) => {
 
 // POST /produtos
 app.post('/produtos', async (req, res) => {
-  const { id, nome, categoria, preco } = req.body;
 
-  if (!id || !nome || !categoria || preco === undefined) {
+  const {
+    nome,
+    marca,
+    tamanho,
+    cor,
+    categoria,
+    valor,
+    estoque
+  } = req.body;
+
+  if (
+    !nome ||
+    !marca ||
+    !tamanho ||
+    !cor ||
+    !categoria ||
+    valor === undefined ||
+    estoque === undefined
+  ) {
     return res.status(400).json({
-      mensagem: 'Campos id, nome, categoria e preco são obrigatórios!',
+      mensagem: 'Todos os campos são obrigatórios.'
     });
   }
 
-  const dataCriacao = new Date();
-  const dataModificacao = null;
-
   try {
+
     const [result] = await connection.execute<ResultSetHeader>(
-      'INSERT INTO produto (id, nome, categoria, preco, data_criacao, data_modificacao) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, nome, categoria, preco, dataCriacao, dataModificacao]
+      `
+      INSERT INTO produtos
+      (
+        NOME,
+        MARCA,
+        TAMANHO,
+        COR,
+        CATEGORIA,
+        VALOR_UNITARIO,
+        QUANTIDADE_ESTOQUE
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        nome,
+        marca,
+        tamanho,
+        cor,
+        categoria,
+        valor,
+        estoque
+      ]
     );
 
-    if (result.affectedRows === 0) {
-      return res.status(500).json({
-        mensagem: 'Erro ao cadastrar produto!',
-      });
-    }
-
     return res.status(201).json({
-      mensagem: 'Produto cadastrado com sucesso!',
+      mensagem: 'Produto cadastrado.'
     });
+
   } catch (err) {
     const mysqlErrorHandle = new MysqlErrorHandle(err, res);
     return mysqlErrorHandle.validar();
   }
 });
 
+
+
+
 // PATCH /produto/:id
 app.patch('/produto/:id', async (req, res) => {
+
   const { id } = req.params;
-  const { nome, categoria, preco } = req.body;
+
+  const {
+    nome,
+    marca,
+    tamanho,
+    cor,
+    categoria,
+    valor,
+    estoque
+  } = req.body;
 
   try {
+
     const [rows] = await connection.execute<IProduto[]>(
-      'SELECT * FROM produto WHERE id = ?',
+      'SELECT * FROM produtos WHERE ID_PRODUTO = ?',
       [id]
     );
 
     if (rows.length === 0) {
       return res.status(404).json({
-        mensagem: 'Produto não encontrado!',
+        mensagem: 'Produto não encontrado.'
       });
     }
 
-    const produtoAtual = rows[0] as IProduto;
+    const produto = rows[0] as IProduto;
 
-    const novoNome = nome ?? produtoAtual.nome;
-    const novaCategoria = categoria ?? produtoAtual.categoria;
-    const novoPreco = preco ?? produtoAtual.preco;
-    const dataModificacao = new Date();
-
-    const [result] = await connection.execute<ResultSetHeader>(
-      `UPDATE produto
-       SET nome = ?, categoria = ?, preco = ?, data_modificacao = ?
-       WHERE id = ?`,
-      [novoNome, novaCategoria, novoPreco, dataModificacao, id]
+    await connection.execute(
+      `
+      UPDATE produtos
+      SET
+        NOME = ?,
+        MARCA = ?,
+        TAMANHO = ?,
+        COR = ?,
+        CATEGORIA = ?,
+        VALOR_UNITARIO = ?,
+        QUANTIDADE_ESTOQUE = ?
+      WHERE ID_PRODUTO = ?
+      `,
+      [
+        nome ?? produto.NOME,
+        marca ?? produto.MARCA,
+        tamanho ?? produto.TAMANHO,
+        cor ?? produto.COR,
+        categoria ?? produto.CATEGORIA,
+        valor ?? produto.VALOR_UNITARIO,
+        estoque ?? produto.QUANTIDADE_ESTOQUE,
+        id
+      ]
     );
 
-    if (result.affectedRows === 0) {
-      return res.status(500).json({
-        mensagem: 'Erro ao atualizar produto!',
-      });
-    }
-
     return res.status(200).json({
-      mensagem: 'Produto atualizado com sucesso!',
+      mensagem: 'Produto atualizado.'
     });
+
   } catch (err) {
     const mysqlErrorHandle = new MysqlErrorHandle(err, res);
     return mysqlErrorHandle.validar();
@@ -241,26 +308,82 @@ app.patch('/produto/:id', async (req, res) => {
 
 // DELETE /produto/:id
 app.delete('/produto/:id', async (req, res) => {
+
   const { id } = req.params;
 
   try {
+
     const [result] = await connection.execute<ResultSetHeader>(
-      'DELETE FROM produto WHERE id = ?',
+      'DELETE FROM produtos WHERE ID_PRODUTO = ?',
       [id]
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
-        mensagem: 'Produto não encontrado!',
+        mensagem: 'Produto não encontrado.'
       });
     }
 
-    return res.status(200).json({
-      mensagem: 'Produto deletado com sucesso!',
-    });
+    return res.status(204).send();
+
   } catch (err) {
     const mysqlErrorHandle = new MysqlErrorHandle(err, res);
     return mysqlErrorHandle.validar();
   }
 });
 
+//==============PEDIDOS=========================================
+app.get('/pedidos', async (req, res) => {
+
+  const [dados] = await connection.execute(
+    `
+    SELECT
+      p.ID_PEDIDO,
+      c.NOME AS CLIENTE,
+      pr.NOME AS PRODUTO,
+      p.QUANTIDADE,
+      p.VALOR_TOTAL
+    FROM pedidos p
+    INNER JOIN clientes c
+      ON p.ID_CLIENTE = c.ID_CLIENTE
+    INNER JOIN produtos pr
+      ON p.ID_PRODUTO = pr.ID_PRODUTO
+    `
+  );
+
+  return res.status(200).json(dados);
+});
+
+app.post('/pedidos', async (req, res) => {
+
+  const {
+    idCliente,
+    idProduto,
+    quantidade,
+    valorTotal
+  } = req.body;
+
+  await connection.execute(
+    `
+    INSERT INTO pedidos
+    (
+      ID_CLIENTE,
+      ID_PRODUTO,
+      DATA_PEDIDO,
+      QUANTIDADE,
+      VALOR_TOTAL
+    )
+    VALUES (?, ?, NOW(), ?, ?)
+    `,
+    [
+      idCliente,
+      idProduto,
+      quantidade,
+      valorTotal
+    ]
+  );
+
+  return res.status(201).json({
+    mensagem: 'Pedido cadastrado.'
+  });
+});
